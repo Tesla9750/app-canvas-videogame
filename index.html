@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interacción de Objetos con Canvas</title>
+    <style>
+        /* El mismo estilo que antes */
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background-color: #000;
+            color: #FFF;
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            background-color: #020403;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        main {
+            display: flex;
+            flex: 1;
+            background-color: #020403;
+        }
+
+        .side-panel {
+            background-color: #222;
+            width: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid white;
+            margin: 0 20px;
+        }
+
+        #canvas-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-left: 1px solid white;
+            border-right: 1px solid white;
+        }
+
+        canvas {
+            border: 1px solid white;
+        }
+
+        .info-container {
+            border: 1px solid white;
+            padding: 10px;
+            margin-top: 20px;
+        }
+
+        footer {
+            background-color: #020403;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        #instructions {
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Space Attack</h1>
+        <img src="ruta/a/tu/imagen.jpg" alt="Imagen del videojuego" width="100">
+    </header>
+    <main>
+        <div class="side-panel" id="left-panel">
+            <div class="info-container">
+                <p>Nivel: <span id="level-display">1</span></p>
+                <p id="score-display">Puntaje: 0</p>
+                <p>Highscore: <span id="highscore-display">0</span></p>
+                <p>Vidas: <span id="lives-display">10</span></p>
+            </div>
+        </div>
+        <div id="canvas-container">
+            <canvas id="canvas"></canvas>
+        </div>
+        <div class="side-panel" id="right-panel">
+            <div id="instructions">
+                <p>¡Bienvenido a Space Attack!</p>
+                <p>Destruye los elementos en pantalla haciendo clic sobre ellos.</p>
+                <p>Aumenta tu puntaje y trata de alcanzar el máximo nivel posible.</p>
+                <p>¡Que la fuerza te acompañe!</p>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>Creado por Juan de Dios Benitez Nava - 21200582</p>
+    </footer>
+
+    <script src="JS/main.js"></script>
+</body>
+</html>
