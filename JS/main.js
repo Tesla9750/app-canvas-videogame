@@ -75,7 +75,9 @@ document.getElementById("highscore-display").textContent = highScore;
 const imageUrls = [
     '/assets/enemys/enemy_1.png',
     '/assets/enemys/enemy_2.png',
-    '/assets/enemys/enemy_3.png'
+    '/assets/enemys/enemy_3.png',
+    '/assets/enemys/enemy_4.png',
+    '/assets/enemys/enemy_5.png'
 ];
 
 class Circle {
