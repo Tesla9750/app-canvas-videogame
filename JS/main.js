@@ -4,14 +4,14 @@ const gameOverButton = document.getElementById("game-over-button");
 
 // Cargar la imagen de fondo
 const backgroundImage = new Image();
-backgroundImage.src = '/assets/backgrounds/space-background.png';  // Reemplaza esto con la ruta de tu imagen de fondo
+backgroundImage.src = 'assets/backgrounds/space-background.png';  // Reemplaza esto con la ruta de tu imagen de fondo
 
 backgroundImage.onload = function() {
     animate();  // Iniciar la animación una vez que la imagen de fondo se haya cargado
 }
 
 // Cargar la música de fondo
-const backgroundMusic = new Audio('/assets/sounds/cantina-background-band.mp3'); // Reemplaza con la URL de tu música de fondo
+const backgroundMusic = new Audio('assets/sounds/cantina-background-band.mp3'); // Reemplaza con la URL de tu música de fondo
 backgroundMusic.loop = true; // Hacer que la música se reproduzca en bucle
 backgroundMusic.play(); // Iniciar la reproducción de la música
 
@@ -33,8 +33,8 @@ let circlesArray = [];
 let circlesDestroyed = 0;
 
 // Cargar los sonidos
-const clickSound = new Audio('/assets/sounds/shoot-sound.mp3'); // Reemplaza con la URL de tu sonido de click
-const lifeLostSound = new Audio('/assets/sounds/destroy-sound.mp3'); // Reemplaza con la URL de tu sonido de perder vida
+const clickSound = new Audio('assets/sounds/shoot-sound.mp3'); // Reemplaza con la URL de tu sonido de click
+const lifeLostSound = new Audio('assets/sounds/destroy-sound.mp3'); // Reemplaza con la URL de tu sonido de perder vida
 
 // Funciones para manejar cookies
 function setCookie(name, value, days) {
@@ -73,11 +73,11 @@ function updateHighScore() {
 document.getElementById("highscore-display").textContent = highScore;
 
 const imageUrls = [
-    '/assets/enemys/enemy_1.png',
-    '/assets/enemys/enemy_2.png',
-    '/assets/enemys/enemy_3.png',
-    '/assets/enemys/enemy_4.png',
-    '/assets/enemys/enemy_5.png'
+    'assets/enemys/enemy_1.png',
+    'assets/enemys/enemy_2.png',
+    'assets/enemys/enemy_3.png',
+    'assets/enemys/enemy_4.png',
+    'assets/enemys/enemy_5.png'
 ];
 
 class Circle {
