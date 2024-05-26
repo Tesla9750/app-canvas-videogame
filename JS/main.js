@@ -4,16 +4,21 @@ const gameOverButton = document.getElementById("game-over-button");
 
 // Cargar la imagen de fondo
 const backgroundImage = new Image();
-backgroundImage.src = 'assets/backgrounds/space-background.png';  // Reemplaza esto con la ruta de tu imagen de fondo
+backgroundImage.src = 'assets/backgrounds/space-background.png';  // Asegúrate de que esta ruta sea correcta
 
 backgroundImage.onload = function() {
     animate();  // Iniciar la animación una vez que la imagen de fondo se haya cargado
 }
 
 // Cargar la música de fondo
-const backgroundMusic = new Audio('assets/sounds/cantina-background-band.mp3'); // Reemplaza con la URL de tu música de fondo
+const backgroundMusic = new Audio('assets/sounds/cantina-background-band.mp3'); // Asegúrate de que esta ruta sea correcta
 backgroundMusic.loop = true; // Hacer que la música se reproduzca en bucle
-backgroundMusic.play(); // Iniciar la reproducción de la música
+
+function playBackgroundMusic() {
+    backgroundMusic.play().catch((error) => {
+        console.log('No se pudo reproducir la música de fondo: ' + error);
+    });
+}
 
 function resizeCanvas() {
     const canvasContainer = document.getElementById("canvas-container");
@@ -33,8 +38,8 @@ let circlesArray = [];
 let circlesDestroyed = 0;
 
 // Cargar los sonidos
-const clickSound = new Audio('assets/sounds/shoot-sound.mp3'); // Reemplaza con la URL de tu sonido de click
-const lifeLostSound = new Audio('assets/sounds/destroy-sound.mp3'); // Reemplaza con la URL de tu sonido de perder vida
+const clickSound = new Audio('assets/sounds/shoot-sound.mp3'); // Asegúrate de que esta ruta sea correcta
+const lifeLostSound = new Audio('assets/sounds/destroy-sound.mp3'); // Asegúrate de que esta ruta sea correcta
 
 // Funciones para manejar cookies
 function setCookie(name, value, days) {
@@ -153,6 +158,7 @@ function increaseCircleSpeed() {
 }
 
 canvas.addEventListener('click', (event) => {
+    playBackgroundMusic(); // Iniciar la música de fondo al primer clic
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
@@ -198,47 +204,20 @@ function animate() {
             i--;
         }
     }
-    if (circlesArray.length < 10) {
+    if (circlesArray.length < 10 + level * 5) {
         createCircle();
     }
     requestAnimationFrame(animate);
 }
 
-function resetGame() {
-    score = 0;
-    lives = 10;
-    level = 1;
-    circlesArray = [];
-    circlesDestroyed = 0;
-    document.getElementById('score-display').textContent = "Puntaje: " + score;
-    document.getElementById('lives-display').textContent = lives;
-    document.getElementById('level-display').textContent = "Nivel: " + level;
-    gameOverButton.style.display = "none"; // Ocultar el botón de "Game Over"
-    canvas.style.pointerEvents = "auto"; // Habilitar la interacción con el canvas
-
-    // Crear círculos iniciales
-    for (let i = 0; i < 10; i++) {
-        createCircle();
-    }
-
-    // Iniciar la animación
-    animate();
-}
-
-for (let i = 0; i < 10; i++) {
-    createCircle();
-}
-
-// Mostrar el botón de "Game Over" y redirigir a index.html al hacer clic en él
-gameOverButton.addEventListener('click', () => {
-    setCookie("highScore", highScore, 365); // Guardar el highscore cuando se reinicia el juego
-    window.location.href = 'index.html'; // Redirigir a la página principal
-});
-
-// Función para finalizar el juego
 function endGame() {
-    gameOverButton.style.display = "block"; // Mostrar el botón de "Game Over"
-    canvas.style.pointerEvents = "none"; // Deshabilitar la interacción con el canvas
+    backgroundMusic.pause(); // Pausar la música de fondo
+    canvas.style.cursor = "default";
+    gameOverButton.style.display = "block";
+    gameOverButton.addEventListener('click', () => {
+        location.reload();  // Recargar la página para reiniciar el juego
+    });
 }
 
+// Ocultar el cursor sobre el canvas
 animate();
