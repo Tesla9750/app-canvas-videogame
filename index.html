@@ -52,6 +52,7 @@
             align-items: center;
             border-left: 1px solid white;
             border-right: 1px solid white;
+            position: relative;
         }
 
         canvas {
@@ -77,12 +78,26 @@
             font-size: 14px;
             line-height: 1.5;
         }
+
+        #game-over-button {
+            display: none; /* Oculto inicialmente */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 10px 20px;
+            background-color: red;
+            color: white;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <header>
         <h1>Space Attack</h1>
-        <img src="ruta/a/tu/imagen.jpg" alt="Imagen del videojuego" width="100">
+        <img src="/assets/icono-game.png" alt="Imagen del videojuego" width="50">
     </header>
     <main>
         <div class="side-panel" id="left-panel">
@@ -95,6 +110,7 @@
         </div>
         <div id="canvas-container">
             <canvas id="canvas"></canvas>
+            <button id="game-over-button">Game Over - Reiniciar</button>
         </div>
         <div class="side-panel" id="right-panel">
             <div id="instructions">

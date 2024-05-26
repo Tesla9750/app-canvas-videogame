@@ -1,5 +1,19 @@
 const canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
+const gameOverButton = document.getElementById("game-over-button");
+
+// Cargar la imagen de fondo
+const backgroundImage = new Image();
+backgroundImage.src = '/assets/backgrounds/space-background.png';  // Reemplaza esto con la ruta de tu imagen de fondo
+
+backgroundImage.onload = function() {
+    animate();  // Iniciar la animación una vez que la imagen de fondo se haya cargado
+}
+
+// Cargar la música de fondo
+const backgroundMusic = new Audio('/assets/sounds/cantina-background-band.mp3'); // Reemplaza con la URL de tu música de fondo
+backgroundMusic.loop = true; // Hacer que la música se reproduzca en bucle
+backgroundMusic.play(); // Iniciar la reproducción de la música
 
 function resizeCanvas() {
     const canvasContainer = document.getElementById("canvas-container");
@@ -10,30 +24,67 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
-canvas.style.background = "#000";
-
 let score = 0;
-let highScore = localStorage.getItem("highScore") || 0;
+let highScore = getCookie("highScore") || 0;
 highScore = parseInt(highScore);
 let lives = 10;
 let level = 1;
+let circlesArray = [];
+let circlesDestroyed = 0;
+
+// Cargar los sonidos
+const clickSound = new Audio('/assets/sounds/shoot-sound.mp3'); // Reemplaza con la URL de tu sonido de click
+const lifeLostSound = new Audio('/assets/sounds/destroy-sound.mp3'); // Reemplaza con la URL de tu sonido de perder vida
+
+// Funciones para manejar cookies
+function setCookie(name, value, days) {
+    let expires = "";
+    if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "") + expires + "; path=/";
+}
+
+function getCookie(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for(let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+}
+
+function eraseCookie(name) {
+    document.cookie = name + '=; Max-Age=-99999999;';
+}
 
 function updateHighScore() {
     if (score > highScore) {
         highScore = score;
-        localStorage.setItem("highScore", highScore);
+        setCookie("highScore", highScore, 365);  // Guardar el highscore en una cookie por 1 año
         document.getElementById("highscore-display").textContent = highScore;
     }
 }
 
+document.getElementById("highscore-display").textContent = highScore;
+
+const imageUrls = [
+    '/assets/enemys/enemy_1.png',
+    '/assets/enemys/enemy_2.png',
+    '/assets/enemys/enemy_3.png'
+];
+
 class Circle {
-    constructor(x, y, radius, color, textColor, text, speed) {
+    constructor(x, y, radius, imageUrl, speed) {
         this.posX = x;
         this.posY = y;
         this.radius = radius;
-        this.color = color;
-        this.textColor = textColor;
-        this.text = text;
+        this.image = new Image();
+        this.image.src = imageUrl;
         this.speed = speed;
         this.dx = 0;
         this.dy = -1 * this.speed;
@@ -41,16 +92,7 @@ class Circle {
     }
 
     draw(context) {
-        context.beginPath();
-        context.fillStyle = this.color;
-        context.arc(this.posX, this.posY, this.radius, 0, Math.PI * 2, false);
-        context.fill();
-        context.fillStyle = this.textColor;
-        context.textAlign = "center";
-        context.textBaseline = "middle";
-        context.font = "16px Arial";
-        context.fillText(this.text, this.posX, this.posY);
-        context.closePath();
+        context.drawImage(this.image, this.posX - this.radius, this.posY - this.radius, this.radius * 2, this.radius * 2);
     }
 
     update(context) {
@@ -58,10 +100,10 @@ class Circle {
         if (this.posY - this.radius <= 0) {
             this.shouldBeRemoved = true;
             lives--;
+            lifeLostSound.play(); // Reproducir sonido de perder vida
             updateLivesDisplay();
             if (lives <= 0) {
-                alert("Game Over");
-                document.location.reload();
+                endGame();
             }
         }
         this.posX += this.dx;
@@ -78,16 +120,14 @@ function getDistance(posx1, posy1, posx2, posy2) {
     return Math.sqrt(Math.pow(posx2 - posx1, 2) + Math.pow(posy2 - posy1, 2));
 }
 
-let circlesArray = [];
-let circlesDestroyed = 0;
-
 function createCircle() {
     let circleCreated = false;
     while (!circleCreated) {
-        let randomRadius = Math.floor(Math.random() * 60 + 35);
+        let randomRadius = Math.floor(Math.random() * 25 + 35);
         let randomX = Math.random() * (canvas.width - 2 * randomRadius) + randomRadius;
         let randomY = canvas.height + randomRadius;
-        let randomSpeed = Math.floor(Math.random() * 6) + 1;
+        let randomSpeed = Math.random() * 2 + 0.5;  // Reducir la velocidad inicial
+        let randomImage = imageUrls[Math.floor(Math.random() * imageUrls.length)];
         let creationValid = true;
         for (let j = 0; j < circlesArray.length; j++) {
             let distance = getDistance(randomX, randomY, circlesArray[j].posX, circlesArray[j].posY);
@@ -97,7 +137,7 @@ function createCircle() {
             }
         }
         if (creationValid) {
-            circlesArray.push(new Circle(randomX, randomY, randomRadius, "#FF5733", "#FFF", "Circle", randomSpeed));
+            circlesArray.push(new Circle(randomX, randomY, randomRadius, randomImage, randomSpeed));
             circleCreated = true;
         }
     }
@@ -105,7 +145,7 @@ function createCircle() {
 
 function increaseCircleSpeed() {
     for (let i = 0; i < circlesArray.length; i++) {
-        circlesArray[i].speed += 1;
+        circlesArray[i].speed += 0.2; // Incrementar la velocidad en 0.2
         circlesArray[i].dy = -1 * circlesArray[i].speed;
     }
 }
@@ -117,6 +157,7 @@ canvas.addEventListener('click', (event) => {
 
     for (let i = 0; i < circlesArray.length; i++) {
         if (circlesArray[i].isPointInside(x, y)) {
+            clickSound.play(); // Reproducir sonido de click
             circlesArray.splice(i, 1);
             circlesDestroyed++;
             score++;
@@ -124,7 +165,7 @@ canvas.addEventListener('click', (event) => {
             updateScoreDisplay();
             if (circlesDestroyed % 10 === 0) {
                 level++;
-                document.getElementById('level-display').textContent = "Nivel: " + level;
+                document.getElementById('level-display').textContent =  level;
                 increaseCircleSpeed();
             }
             createCircle();
@@ -146,6 +187,8 @@ updateLivesDisplay();
 
 function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);  // Dibujar la imagen de fondo
+
     for (let i = 0; i < circlesArray.length; i++) {
         circlesArray[i].update(ctx);
         if (circlesArray[i].shouldBeRemoved) {
@@ -159,8 +202,41 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
+function resetGame() {
+    score = 0;
+    lives = 10;
+    level = 1;
+    circlesArray = [];
+    circlesDestroyed = 0;
+    document.getElementById('score-display').textContent = "Puntaje: " + score;
+    document.getElementById('lives-display').textContent = lives;
+    document.getElementById('level-display').textContent = "Nivel: " + level;
+    gameOverButton.style.display = "none"; // Ocultar el botón de "Game Over"
+    canvas.style.pointerEvents = "auto"; // Habilitar la interacción con el canvas
+
+    // Crear círculos iniciales
+    for (let i = 0; i < 10; i++) {
+        createCircle();
+    }
+
+    // Iniciar la animación
+    animate();
+}
+
 for (let i = 0; i < 10; i++) {
     createCircle();
+}
+
+// Mostrar el botón de "Game Over" y redirigir a index.html al hacer clic en él
+gameOverButton.addEventListener('click', () => {
+    setCookie("highScore", highScore, 365); // Guardar el highscore cuando se reinicia el juego
+    window.location.href = 'index.html'; // Redirigir a la página principal
+});
+
+// Función para finalizar el juego
+function endGame() {
+    gameOverButton.style.display = "block"; // Mostrar el botón de "Game Over"
+    canvas.style.pointerEvents = "none"; // Deshabilitar la interacción con el canvas
 }
 
 animate();
