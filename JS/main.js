@@ -204,11 +204,7 @@ function animate() {
             i--;
         }
     }
-<<<<<<< HEAD
     if (circlesArray.length < 2 + level * 2) {
-=======
-    if (circlesArray.length < 10 + level * 5) {
->>>>>>> 6e5e2eab2ed72d0ef031a0b88e83f9d3b22e2d55
         createCircle();
     }
     requestAnimationFrame(animate);
@@ -224,8 +220,4 @@ function endGame() {
 }
 
 // Ocultar el cursor sobre el canvas
-<<<<<<< HEAD
 animate();
-=======
-animate();
->>>>>>> 6e5e2eab2ed72d0ef031a0b88e83f9d3b22e2d55
