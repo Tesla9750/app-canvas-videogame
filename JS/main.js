@@ -1,18 +1,27 @@
 const canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
 const gameOverButton = document.getElementById("game-over-button");
+const phaseMessage = document.getElementById("phase-message");
 
-// Cargar la imagen de fondo
-const backgroundImage = new Image();
-backgroundImage.src = 'assets/backgrounds/space-background.png';  // Asegúrate de que esta ruta sea correcta
+// Cargar las imágenes de fondo para cada fase
+const backgroundImages = [
+    'assets/backgrounds/constelation-background.jpeg',
+    'assets/backgrounds/galaxy-background.jpeg',
+    'assets/backgrounds/sky-background.jpg',
+    'assets/backgrounds/river-background.jpeg',
+    'assets/backgrounds/valley-background.jpeg'
+];
+let currentBackgroundIndex = 0;
+let backgroundImage = new Image();
+backgroundImage.src = backgroundImages[currentBackgroundIndex];
 
 backgroundImage.onload = function() {
-    animate();  // Iniciar la animación una vez que la imagen de fondo se haya cargado
+    animate();
 }
 
 // Cargar la música de fondo
-const backgroundMusic = new Audio('assets/sounds/cantina-background-band.mp3'); // Asegúrate de que esta ruta sea correcta
-backgroundMusic.loop = true; // Hacer que la música se reproduzca en bucle
+const backgroundMusic = new Audio('assets/sounds/cantina-background-band.mp3');
+backgroundMusic.loop = true;
 
 function playBackgroundMusic() {
     backgroundMusic.play().catch((error) => {
@@ -37,11 +46,9 @@ let level = 1;
 let circlesArray = [];
 let circlesDestroyed = 0;
 
-// Cargar los sonidos
-const clickSound = new Audio('assets/sounds/shoot-sound.mp3'); // Asegúrate de que esta ruta sea correcta
-const lifeLostSound = new Audio('assets/sounds/destroy-sound.mp3'); // Asegúrate de que esta ruta sea correcta
+const clickSound = new Audio('assets/sounds/shoot-sound-2.mp3');
+const lifeLostSound = new Audio('assets/sounds/destroy-sound.mp3');
 
-// Funciones para manejar cookies
 function setCookie(name, value, days) {
     let expires = "";
     if (days) {
@@ -70,7 +77,7 @@ function eraseCookie(name) {
 function updateHighScore() {
     if (score > highScore) {
         highScore = score;
-        setCookie("highScore", highScore, 365);  // Guardar el highscore en una cookie por 1 año
+        setCookie("highScore", highScore, 365);
         document.getElementById("highscore-display").textContent = highScore;
     }
 }
@@ -107,7 +114,7 @@ class Circle {
         if (this.posY - this.radius <= 0) {
             this.shouldBeRemoved = true;
             lives--;
-            lifeLostSound.play(); // Reproducir sonido de perder vida
+            lifeLostSound.play();
             updateLivesDisplay();
             if (lives <= 0) {
                 endGame();
@@ -130,10 +137,10 @@ function getDistance(posx1, posy1, posx2, posy2) {
 function createCircle() {
     let circleCreated = false;
     while (!circleCreated) {
-        let randomRadius = Math.floor(Math.random() * 25 + 35);
+        let randomRadius = Math.floor(Math.random() * 30 + 35);
         let randomX = Math.random() * (canvas.width - 2 * randomRadius) + randomRadius;
         let randomY = canvas.height + randomRadius;
-        let randomSpeed = Math.random() * 1.3 + 0.2;  // Reducir la velocidad inicial
+        let randomSpeed = Math.random() * 0.8 + 0.2;
         let randomImage = imageUrls[Math.floor(Math.random() * imageUrls.length)];
         let creationValid = true;
         for (let j = 0; j < circlesArray.length; j++) {
@@ -152,20 +159,20 @@ function createCircle() {
 
 function increaseCircleSpeed() {
     for (let i = 0; i < circlesArray.length; i++) {
-        circlesArray[i].speed += 0.3; // Incrementar la velocidad en 0.2
-        circlesArray[i].dy = -1 * circlesArray[i].speed;
+        circlesArray[i].speed += 0.5;
+        circlesArray[i].dy = -0.3 * circlesArray[i].speed;
     }
 }
 
 canvas.addEventListener('click', (event) => {
-    playBackgroundMusic(); // Iniciar la música de fondo al primer clic
+    playBackgroundMusic();
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
     for (let i = 0; i < circlesArray.length; i++) {
         if (circlesArray[i].isPointInside(x, y)) {
-            clickSound.play(); // Reproducir sonido de click
+            clickSound.play();
             circlesArray.splice(i, 1);
             circlesDestroyed++;
             score++;
@@ -173,8 +180,11 @@ canvas.addEventListener('click', (event) => {
             updateScoreDisplay();
             if (circlesDestroyed % 10 === 0) {
                 level++;
-                document.getElementById('level-display').textContent =  level;
+                document.getElementById('level-display').textContent = level;
                 increaseCircleSpeed();
+                if (level % 3 === 0) {
+                    changePhase(level / 3);
+                }
             }
             createCircle();
             break;
@@ -183,19 +193,36 @@ canvas.addEventListener('click', (event) => {
 });
 
 function updateScoreDisplay() {
-    document.getElementById('score-display').textContent = "Puntaje: " + score;
+    document.getElementById('score-display').textContent = "Puntaje " + score;
 }
 
 function updateLivesDisplay() {
-    document.getElementById('lives-display').textContent = lives;
+    document.getElementById('lives-display').textContent = "Vidas : " + lives;
 }
 
 updateScoreDisplay();
 updateLivesDisplay();
 
+function changePhase(phase) {
+    const phaseMessages = [
+        "Fase 1 - Invasión Planetaria. Prepárate para defender tu planeta.",
+        "Fase 2 - Pelea en el Cielo. Enfrenta a los invasores para evitar que lleguen a tu ciudad.",
+        "Fase 3 - Valle Central. El ultimo bastion de defensa.",
+        "Fase 4 - Los cubos. Sera este el fin?."
+    ];
+
+    currentBackgroundIndex = (currentBackgroundIndex + 1) % backgroundImages.length;
+    backgroundImage.src = backgroundImages[currentBackgroundIndex];
+    phaseMessage.style.display = 'block';
+    phaseMessage.textContent = phaseMessages[phase - 1]; // Mostrar el mensaje de fase con más texto
+    setTimeout(() => {
+        phaseMessage.style.display = 'none';
+    }, 3000);
+}
+
 function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);  // Dibujar la imagen de fondo
+    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 
     for (let i = 0; i < circlesArray.length; i++) {
         circlesArray[i].update(ctx);
@@ -204,20 +231,20 @@ function animate() {
             i--;
         }
     }
-    if (circlesArray.length < 2 + level * 2) {
+    if (circlesArray.length < 1 + level * 1.2) {
         createCircle();
     }
     requestAnimationFrame(animate);
 }
 
 function endGame() {
-    backgroundMusic.pause(); // Pausar la música de fondo
+    backgroundMusic.pause();
     canvas.style.cursor = "default";
     gameOverButton.style.display = "block";
     gameOverButton.addEventListener('click', () => {
-        location.reload();  // Recargar la página para reiniciar el juego
+        location.reload();
     });
 }
+canvas.style.cursor = "url(assets/mouse-icon.png), auto";
 
-// Ocultar el cursor sobre el canvas
 animate();

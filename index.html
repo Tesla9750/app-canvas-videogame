@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planet Invasion Wars</title>
     <style>
-        /* El mismo estilo que antes */
         body,
         html {
             margin: 0;
@@ -29,6 +28,10 @@
             padding: 0 20px;
         }
 
+        header h1 {
+            margin: 0;
+        }
+
         main {
             display: flex;
             flex: 1;
@@ -37,12 +40,32 @@
 
         .side-panel {
             background-color: #222;
-            width: 150px;
+            width: 200px;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             border: 1px solid white;
-            margin: 0 20px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .info-container {
+            width: 100%;
+            border: 1px solid white;
+            padding: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .info-container p {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+
+        .info-container span {
+            font-weight: bold;
+            font-size: 18px;
         }
 
         #canvas-container {
@@ -59,19 +82,6 @@
             border: 1px solid white;
         }
 
-        .info-container {
-            border: 1px solid white;
-            padding: 10px;
-            margin-top: 20px;
-        }
-
-        footer {
-            background-color: #020403;
-            color: white;
-            text-align: center;
-            padding: 10px 0;
-        }
-
         #instructions {
             padding: 10px;
             text-align: center;
@@ -80,7 +90,7 @@
         }
 
         #game-over-button {
-            display: none; /* Oculto inicialmente */
+            display: none;
             position: absolute;
             top: 50%;
             left: 50%;
@@ -92,29 +102,59 @@
             font-size: 20px;
             cursor: pointer;
         }
+
+        #phase-message {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        footer {
+            background-color: #020403;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
     </style>
 </head>
 <body>
     <header>
         <h1>Planet Invasion Wars</h1>
-        <img src="assets/icono-game.png" alt="" width="50">
+        <img src="assets/icono-game.png" alt="Game Icon" width="45">
     </header>
     <main>
         <div class="side-panel" id="left-panel">
             <div class="info-container">
                 <p>Nivel: <span id="level-display">1</span></p>
-                <p id="score-display">Puntaje: 0</p>
+            </div>
+            <div class="info-container">
+                <p><span id="score-display">0</span></p>
+            </div>
+            <div class="info-container">
                 <p>Highscore: <span id="highscore-display">0</span></p>
-                <p>Vidas: <span id="lives-display">10</span></p>
+            </div>
+            <div class="info-container">
+                <p><span id="lives-display">10</span></p>
             </div>
         </div>
+
         <div id="canvas-container">
             <canvas id="canvas"></canvas>
             <button id="game-over-button">Game Over - Reiniciar</button>
+            <div id="phase-message">Fase 1</div>
         </div>
+        
         <div class="side-panel" id="right-panel">
             <div id="instructions">
-                <p>¡Bienvenido a Space Attack!</p>
+                <p>¡Bienvenido a Planet Invasion Wars!</p>
                 <p>Destruye los elementos en pantalla haciendo clic sobre ellos.</p>
                 <p>Aumenta tu puntaje y trata de alcanzar el máximo nivel posible.</p>
                 <p>¡Que la fuerza te acompañe!</p>
