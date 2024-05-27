@@ -161,7 +161,7 @@ function createCircle() {
         let randomRadius = Math.floor(Math.random() * 30 + 35);
         let randomX = Math.random() * (canvas.width - 2 * randomRadius) + randomRadius;
         let randomY = canvas.height + randomRadius;
-        let randomSpeed = Math.random() * 0.7 + 0.3;
+        let randomSpeed = Math.random() * 0.7 + 0.;
         let randomImage = imageUrls[Math.floor(Math.random() * imageUrls.length)];
         let creationValid = true;
         for (let j = 0; j < circlesArray.length; j++) {
