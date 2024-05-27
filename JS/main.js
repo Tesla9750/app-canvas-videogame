@@ -1,5 +1,8 @@
+// Obtener el elemento canvas y su contexto 2D
 const canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
+
+// Obtener los botones de game over y victoria
 const gameOverButton = document.getElementById("game-over-button");
 const victoryButton = document.getElementById("victory-button");
 const phaseMessage = document.getElementById("phase-message");
@@ -17,6 +20,7 @@ let currentBackgroundIndex = 0;
 let backgroundImage = new Image();
 backgroundImage.src = backgroundImages[currentBackgroundIndex];
 
+// Iniciar la animación una vez cargada la imagen de fondo
 backgroundImage.onload = function() {
     animate();
 }
@@ -25,12 +29,14 @@ backgroundImage.onload = function() {
 const backgroundMusic = new Audio('assets/sounds/cantina-background-band.mp3');
 backgroundMusic.loop = true;
 
+// Función para reproducir la música de fondo
 function playBackgroundMusic() {
     backgroundMusic.play().catch((error) => {
         console.log('No se pudo reproducir la música de fondo: ' + error);
     });
 }
 
+// Función para redimensionar el canvas según el contenedor
 function resizeCanvas() {
     const canvasContainer = document.getElementById("canvas-container");
     canvas.width = canvasContainer.clientWidth;
@@ -40,6 +46,7 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
+// Inicializar variables de puntuación, vidas y nivel
 let score = 0;
 let highScore = getCookie("highScore") || 0;
 highScore = parseInt(highScore);
@@ -48,9 +55,11 @@ let level = 1;
 let circlesArray = [];
 let circlesDestroyed = 0;
 
+// Cargar los sonidos de clic y pérdida de vida
 const clickSound = new Audio('assets/sounds/shoot-sound-2.mp3');
 const lifeLostSound = new Audio('assets/sounds/destroy-sound.mp3');
 
+// Funciones para manejar cookies (establecer, obtener y borrar)
 function setCookie(name, value, days) {
     let expires = "";
     if (days) {
@@ -76,6 +85,7 @@ function eraseCookie(name) {
     document.cookie = name + '=; Max-Age=-99999999;';
 }
 
+// Actualizar la puntuación más alta y mostrarla
 function updateHighScore() {
     if (score > highScore) {
         highScore = score;
@@ -86,14 +96,21 @@ function updateHighScore() {
 
 document.getElementById("highscore-display").textContent = highScore;
 
+// URLs de las imágenes de los enemigos y del círculo de bonus
 const imageUrls = [
     'assets/enemys/enemy_1.png',
     'assets/enemys/enemy_2.png',
     'assets/enemys/enemy_3.png',
     'assets/enemys/enemy_4.png',
-    'assets/enemys/enemy_5.png'
+    'assets/enemys/enemy_5.png',
+    'assets/enemys/enemy_6.png',
+    'assets/enemys/enemy_7.png',
+    'assets/enemys/enemy_8.png'
 ];
 
+const bonusImageUrl = 'assets/gear-up.png'; // Imagen para el círculo de bonus
+
+// Clase Circle para representar a los enemigos
 class Circle {
     constructor(x, y, radius, imageUrl, speed) {
         this.posX = x;
@@ -132,10 +149,12 @@ class Circle {
     }
 }
 
+// Función para calcular la distancia entre dos puntos
 function getDistance(posx1, posy1, posx2, posy2) {
     return Math.sqrt(Math.pow(posx2 - posx1, 2) + Math.pow(posy2 - posy1, 2));
 }
 
+// Crear un nuevo círculo enemigo
 function createCircle() {
     let circleCreated = false;
     while (!circleCreated) {
@@ -159,19 +178,32 @@ function createCircle() {
     }
 }
 
+// Aumentar la velocidad de los círculos enemigos
 function increaseCircleSpeed() {
     for (let i = 0; i < circlesArray.length; i++) {
-        circlesArray[i].speed += 0.6;
-        circlesArray[i].dy = -0.2 * circlesArray[i].speed;
+        circlesArray[i].speed += 0.3;
+        circlesArray[i].dy = -0.15 * circlesArray[i].speed;
     }
 }
 
+let bonusCircle = null;
+
+// Manejar el clic en el canvas
 canvas.addEventListener('click', (event) => {
     playBackgroundMusic();
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
+    // Verificar si se hizo clic en el círculo de bonus
+    if (bonusCircle && bonusCircle.isPointInside(x, y)) {
+        lives++;
+        updateLivesDisplay();
+        bonusCircle = null; // Eliminar el círculo de bonus
+        return;
+    }
+
+    // Verificar si se hizo clic en un círculo enemigo
     for (let i = 0; i < circlesArray.length; i++) {
         if (circlesArray[i].isPointInside(x, y)) {
             clickSound.play();
@@ -197,10 +229,12 @@ canvas.addEventListener('click', (event) => {
     }
 });
 
+// Actualizar la visualización de la puntuación
 function updateScoreDisplay() {
     document.getElementById('score-display').textContent = "Puntaje " + score;
 }
 
+// Actualizar la visualización de las vidas
 function updateLivesDisplay() {
     document.getElementById('lives-display').textContent = "Vidas : " + lives;
 }
@@ -208,6 +242,7 @@ function updateLivesDisplay() {
 updateScoreDisplay();
 updateLivesDisplay();
 
+// Cambiar de fase en el juego
 function changePhase(phase) {
     const phaseMessages = [
         "Fase 1 - Invasión Planetaria. Prepárate para defender tu planeta.",
@@ -225,10 +260,16 @@ function changePhase(phase) {
     setTimeout(() => {
         phaseMessage.style.display = 'none';
     }, 3000);
+
+    // Crear el círculo de bonus
+    const randomX = Math.random() * (canvas.width - 100) + 50;
+    const randomY = Math.random() * (canvas.height - 100) + 50;
+    bonusCircle = new Circle(randomX, randomY, 30, bonusImageUrl, 0); // El círculo de bonus es estático (speed = 0)
 }
 
 let gameState = "playing"; // Variable para manejar el estado del juego
 
+// Manejar la victoria en el juego
 function victory() {
     gameState = "victory";
     backgroundMusic.pause();
@@ -242,6 +283,7 @@ function victory() {
     });
 }
 
+// Animar los elementos del juego
 function animate() {
     if (gameState === "playing") {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -254,6 +296,11 @@ function animate() {
                 i--;
             }
         }
+
+        if (bonusCircle) {
+            bonusCircle.draw(ctx);
+        }
+
         if (circlesArray.length < 1 + level * 0.6) {
             createCircle();
         }
@@ -262,10 +309,14 @@ function animate() {
         // Detener el juego en el estado de victoria
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         circlesArray = [];  // Vaciar el array de círculos
-        
+    } else if (gameState === "gameOver") {
+        // Detener el juego en el estado de game over
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        circlesArray = [];  // Vaciar el array de círculos
     }
 }
 
+// Manejar el fin del juego
 function endGame() {
     gameState = "gameOver";
     backgroundMusic.pause();
@@ -279,6 +330,8 @@ function endGame() {
     });
 }
 
+// Establecer el cursor personalizado para el canvas
 canvas.style.cursor = "url(assets/mouse-icon.png), auto";
 
+// Iniciar la animación del juego
 animate();
