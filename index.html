@@ -123,6 +123,19 @@
             text-align: center;
             padding: 10px 0;
         }
+        #victory-button {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 10px 20px;
+            background-color: green;
+            color: white;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -150,6 +163,8 @@
             <canvas id="canvas"></canvas>
             <button id="game-over-button">Game Over - Reiniciar</button>
             <div id="phase-message">Fase 1</div>
+            <button id="victory-button">Victoria - Reiniciar</button>
+
         </div>
         
         <div class="side-panel" id="right-panel">
